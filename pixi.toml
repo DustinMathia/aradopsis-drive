@@ -1,0 +1,16 @@
+[workspace]
+channels = ["conda-forge", "bioconda"]
+name = "aradopsis-drive"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+duckdb = ">=1.4.3,<2"
+snakemake = ">=9.14.6,<10"
+jupyterlab = ">=4.5.2,<5"
+bioconductor-karyoploter = ">=1.32.0,<2"
+ruff = ">=0.14.11,<0.15"
+pytest = ">=9.0.2,<10"
+dvc = ">=3.66.1,<4"
