@@ -37,4 +37,4 @@ onerror:
 rule all:
     input:
         # Use expand to create concrete file lists for the DAG
-        expand(f"{RESULTS}/{{sample}}.aggregate.csv", sample=SAMPLES)
+        expand(f"{RESULTS}/{{sample}}.h_ratio.pdf", sample=SAMPLES)
