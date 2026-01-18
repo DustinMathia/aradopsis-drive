@@ -8,11 +8,14 @@
 # -----------------------------------------------------
 configfile: "config/config.yaml"
 
+# Helper to build target paths
+SAMPLES = SAMPLES, = glob_wildcards(os.path.join(config["samples_dir"], "{sample}.csv"))
+DATA = config["data_dir"]
+RESULTS = config["results_dir"]
 
 # load rules
 # -----------------------------------------------------
-include: "rules/common.smk"
-include: "rules/process_reads.smk"
+include: "rules/count_hybrids.smk"
 
 
 # optional messages, log and error handling
@@ -33,5 +36,5 @@ onerror:
 # -----------------------------------------------------
 rule all:
     input:
-        "results/multiqc/multiqc_report.html",
-    default_target: True
+        # Use expand to create concrete file lists for the DAG
+        expand(f"{RESULTS}/{{sample}}.h_ratio.pdf", sample=SAMPLES)

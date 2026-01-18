@@ -1,10 +1,9 @@
-results/**
-resources/**
 logs/**
 .snakemake
 .snakemake/**
 .test/results/*
 workflow/notebooks/.ipynb_checkpoints/**
+**/.ipynb_checkpoints/**
 **/.Rhistory
 **/*.Rproj
 **/.Rproj.user/**
