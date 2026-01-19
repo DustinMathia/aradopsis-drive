@@ -26,13 +26,16 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
     initial_rel = con.read_csv(data_path)
     all_cols = initial_rel.columns
     data_cols = [c for c in all_cols if '_' in c and c.split('_')[-1].isdigit()]
+
+    # turn col_list into correct duckdb sql string format
+    col_list_sql = ", ".join([f"'{c}'" for c in data_cols])
     
     # remove excluded chromosome positions (centromeres)
     exclude_list = [str(p) for p in config.get("exclude", [])]
-    data_cols = [c for c in data_cols if c not in set(exclude_list)]
-        
-    # turn col_list into correct duckdb sql string format
-    col_list = ", ".join([f"'{c}'" for c in data_cols])
+    # turn exclude_list into correct duckdb sql string format
+    exclude_list_sql = ", ".join([f"'{c}'" for c in exclude_list])
+    #data_cols = [c for c in data_cols if c not in set(exclude_list)]
+    
     
     # Unpivots position row, then pivots genotype categories, to aggregate H to A ratio
     query = r"""
@@ -64,10 +67,14 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
         split_part(header, '_', 2)::INTEGER AS pos,
         H, A, NA,
         (H + A) AS valid_count,
-        ROUND(H::FLOAT / NULLIF((H + A), 0), 3) AS h_ratio
+        CASE 
+            WHEN header IN ({exclude_list}) THEN NULL
+            ELSE ROUND(H::FLOAT / NULLIF((H + A), 0), 3) 
+        END AS h_ratio
+        --ROUND(H::FLOAT / NULLIF((H + A), 0), 3) AS h_ratio
     FROM pivoted_data
     ORDER BY chr, pos
-    """.format(data_path=data_path, col_list=col_list)
+    """.format(data_path=data_path, col_list=col_list_sql, exclude_list=exclude_list_sql)
 
     con.sql(query).write_csv(out_path)
 

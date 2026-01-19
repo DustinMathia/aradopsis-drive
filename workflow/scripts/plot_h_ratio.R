@@ -46,11 +46,10 @@ kp <- plotKaryotype(
 
 # --- 4. Add Visual Styling (To match the target image) ---
 
-# A. Add a light background grid and shading
 kpDataBackground(kp, color = "#FFFFFF")
 
-# B. Add a horizontal threshold line (e.g., at 0.5)
-# kpAbline is used for horizontal lines in karyoploteR
+# Horizontal threshold lines
+# Draw blue line at 0.5
 kpAbline(kp, h = 0.5, col = "blue", lwd = 1, lty = 2)
 # Draw red line at 0.3 and 0.7
 kpAbline(kp, h = 0.3, col = "red", lwd = 1, lty = 2)
@@ -58,6 +57,23 @@ kpAbline(kp, h = 0.7, col = "red", lwd = 1, lty = 2)
 # Draw orange line at 0.4 and 0.6
 kpAbline(kp, h = 0.4, col = "orange", lwd = 1, lty = 2)
 kpAbline(kp, h = 0.6, col = "orange", lwd = 1, lty = 2)
+
+# Vertical centromere lines
+# Chromosome 1
+v_pos <- snakemake@config[["centromeres"]][["1"]]
+kpAbline(kp, v=v_pos, chr="Chr 1", col="black")
+# Chromosome 2
+v_pos <- snakemake@config[["centromeres"]][["2"]]
+kpAbline(kp, v=v_pos, chr="Chr 2", col="black")
+# Chromosome 3
+v_pos <- snakemake@config[["centromeres"]][["3"]]
+kpAbline(kp, v=v_pos, chr="Chr 3", col="black")
+# Chromosome 4
+v_pos <- snakemake@config[["centromeres"]][["4"]]
+kpAbline(kp, v=v_pos, chr="Chr 4", col="black")
+# Chromosome 5
+v_pos <- snakemake@config[["centromeres"]][["5"]]
+kpAbline(kp, v=v_pos, chr="Chr 5", col="black")
 
 # C. Add a Y-axis with specific labels
 kpAxis(kp, ymin = 0, ymax = 1, numticks = 6, cex = 1)
