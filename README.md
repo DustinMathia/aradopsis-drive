@@ -16,6 +16,16 @@ A Snakemake workflow for `<description>`
 
 ## Usage
 
+You may need to install the karyoploteR library manually by going into R shell `pixi run R` and doing 
+
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("karyoploteR")
+```
+
+
 The usage of this workflow is described in the [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/docs/workflows/<owner>/<repo>).
 
 Detailed information about input data and workflow configuration can also be found in the [`config/README.md`](config/README.md).
