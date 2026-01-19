@@ -52,6 +52,12 @@ kpDataBackground(kp, color = "#FFFFFF")
 # B. Add a horizontal threshold line (e.g., at 0.5)
 # kpAbline is used for horizontal lines in karyoploteR
 kpAbline(kp, h = 0.5, col = "blue", lwd = 1, lty = 2)
+# Draw red line at 0.3 and 0.7
+kpAbline(kp, h = 0.3, col = "red", lwd = 1, lty = 2)
+kpAbline(kp, h = 0.7, col = "red", lwd = 1, lty = 2)
+# Draw orange line at 0.4 and 0.6
+kpAbline(kp, h = 0.4, col = "orange", lwd = 1, lty = 2)
+kpAbline(kp, h = 0.6, col = "orange", lwd = 1, lty = 2)
 
 # C. Add a Y-axis with specific labels
 kpAxis(kp, ymin = 0, ymax = 1, numticks = 6, cex = 1)

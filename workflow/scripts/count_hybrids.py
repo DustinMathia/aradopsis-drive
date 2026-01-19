@@ -2,6 +2,8 @@
 from snakemake.script import snakemake
 import duckdb
 
+config = snakemake.config
+
 def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
     """Creates csv file with 'h_ratio' column. 
 
@@ -18,13 +20,18 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
     """
     
     # create db in memory
-    #relation = duckdb.read_csv(snakemake.input[0], all_varchar=True)
     con = duckdb.connect(database=':memory:')
 
     # Save columns that follow the 'chr_pos' pattern
     initial_rel = con.read_csv(data_path)
     all_cols = initial_rel.columns
     data_cols = [c for c in all_cols if '_' in c and c.split('_')[-1].isdigit()]
+    
+    # remove excluded chromosome positions (centromeres)
+    exclude_list = [str(p) for p in config.get("exclude", [])]
+    data_cols = [c for c in data_cols if c not in set(exclude_list)]
+        
+    # turn col_list into correct duckdb sql string format
     col_list = ", ".join([f"'{c}'" for c in data_cols])
     
     # Unpivots position row, then pivots genotype categories, to aggregate H to A ratio
@@ -34,7 +41,7 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
         SELECT * FROM read_csv('{data_path}')
         WHERE Sample IS NOT NULL AND Sample != ''
     ),
-    -- Table with every bp (A/H/NA) having its own row (cols: Sample, chr, pos, genotype)
+    -- Table with every bp (A/H/NA) having its own row (cols: Sample, chr_pos, genotype)
     long_data AS (
         SELECT 
             Sample,
