@@ -19,7 +19,7 @@ custom_genome <- toGRanges(data.frame(
 ))
 
 # --- 2. Set Up PDF Device ---
-pdf(file = snakemake@output[[1]], width = 12, height = 2)
+pdf(file = snakemake@output[[1]], width = 12, height = 4)
 
 # --- 3. Create Karyotype Plot ---
 
@@ -75,9 +75,33 @@ kpAbline(kp, v=v_pos, chr="Chr 4", col="black")
 v_pos <- snakemake@config[["centromeres"]][["5"]]
 kpAbline(kp, v=v_pos, chr="Chr 5", col="black")
 
+
+# Get dynamic top label
+get_non_c_side <- function(filename) {
+  # If 'C' is on the left: matches 'C_' and captures (.*), replaces with the capture group
+  if (startsWith(filename, "C_")) {
+    return(gsub("^C_(.*)$", "\\1", filename))
+  }
+  # If 'C' is on the right: matches captures (.*) and '_C', replaces with the capture group
+  if (endsWith(filename, "_C")) {
+    return(gsub("^(.*)_C$", "\\1", filename))
+  }
+  # If no 'C' is present (e.g., A_B), return the original string
+  return(filename)
+}
+
+top_label <- sapply(snakemake@wildcards[["sample"]], get_non_c_side)
+
 # C. Add a Y-axis with specific labels
 kpAxis(kp, ymin = 0, ymax = 1, numticks = 6, cex = 1)
-kpAddLabels(kp, labels = "Frequency", srt = 90, pos = 1, label.margin = 0.05, cex = 1)
+kpAddLabels(kp, labels = "Segregation Ratio", srt = 90, pos = 1, label.margin = 0.05, cex = 1)
+
+# Bottom label is always "C"
+# r0 and r1 define the vertical range for the label placement
+kpAddLabels(kp, labels = "C", data.panel = 1, r0=-0.1, r1=0, cex=0.8)
+
+# Add the top label
+kpAddLabels(kp, labels = top_label, data.panel = 1, r0=1, r1=1.1, cex=0.8)
 
 # D. Plot the data using a combination of area and lines for clarity
 # Using kpArea creates the filled effect often seen in these plots
