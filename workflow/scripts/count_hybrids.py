@@ -1,9 +1,15 @@
 # Create a pivot table from aradopsis strain sequences and aggregate hybrid ratio using duckdb
 from snakemake.script import snakemake
 import duckdb
+from scipy.stats import binomtest
 
 config = snakemake.config
 
+def calc_pvalue(k: int, total: int) -> float:
+    if k is None or total is None or total == 0:
+        return None
+    return binomtest(k, total, p=0.5, alternative='two-sided').pvalue
+    
 def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
     """Creates csv file with 'h_ratio' column. 
 
@@ -22,6 +28,8 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
     # create db in memory
     con = duckdb.connect(database=':memory:')
 
+    con.create_function("binomtest", calc_pvalue)
+
     # Save columns that follow the 'chr_pos' pattern
     initial_rel = con.read_csv(data_path)
     all_cols = initial_rel.columns
@@ -35,7 +43,6 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
     # turn exclude_list into correct duckdb sql string format
     exclude_list_sql = ", ".join([f"'{c}'" for c in exclude_list])
     #data_cols = [c for c in data_cols if c not in set(exclude_list)]
-    
     
     # Unpivots position row, then pivots genotype categories, to aggregate H to A ratio
     query = r"""
@@ -70,7 +77,8 @@ def calc_h_ratio(data_path: str, out_path: str) -> None: # makes new csv file
         CASE 
             WHEN header IN ({exclude_list}) THEN NULL
             ELSE ROUND(H::FLOAT / NULLIF((H + A), 0), 3) 
-        END AS h_ratio
+        END AS h_ratio,
+        binomtest(H, H+A) AS p_value
         --ROUND(H::FLOAT / NULLIF((H + A), 0), 3) AS h_ratio
     FROM pivoted_data
     ORDER BY chr, pos

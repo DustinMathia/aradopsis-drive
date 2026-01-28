@@ -52,11 +52,11 @@ kpDataBackground(kp, color = "#FFFFFF")
 # Draw blue line at 0.5
 kpAbline(kp, h = 0.5, col = "blue", lwd = 1, lty = 2)
 # Draw red line at 0.3 and 0.7
-kpAbline(kp, h = 0.3, col = "red", lwd = 1, lty = 2)
-kpAbline(kp, h = 0.7, col = "red", lwd = 1, lty = 2)
+#kpAbline(kp, h = 0.3, col = "red", lwd = 1, lty = 2)
+#kpAbline(kp, h = 0.7, col = "red", lwd = 1, lty = 2)
 # Draw orange line at 0.4 and 0.6
-kpAbline(kp, h = 0.4, col = "orange", lwd = 1, lty = 2)
-kpAbline(kp, h = 0.6, col = "orange", lwd = 1, lty = 2)
+#kpAbline(kp, h = 0.4, col = "orange", lwd = 1, lty = 2)
+#kpAbline(kp, h = 0.6, col = "orange", lwd = 1, lty = 2)
 
 # Vertical centromere lines
 # Chromosome 1
@@ -102,6 +102,25 @@ kpAddLabels(kp, labels = "C", data.panel = 1, r0=-0.1, r1=0, cex=0.8)
 
 # Add the top label
 kpAddLabels(kp, labels = top_label, data.panel = 1, r0=1, r1=1.1, cex=0.8)
+
+
+# --- Highlight Significant Regions (p <= 0.05) ---
+# Filter for significant positions, ensuring no NAs
+sig_df <- data_df[!is.na(data_df$p_value) & data_df$p_value <= 0.05, ]
+
+if (nrow(sig_df) > 0) {
+  kpSegments(
+    karyoplot = kp,
+    chr = sig_df$chr,
+    x0 = sig_df$pos,
+    x1 = sig_df$pos,
+    y0 = 0,
+    y1 = 1,
+    col = adjustcolor("purple", alpha.f = 0.5), # Semi-transparent to prevent occlusion
+    lwd = 1
+  )
+}
+
 
 # D. Plot the data using a combination of area and lines for clarity
 # Using kpArea creates the filled effect often seen in these plots
